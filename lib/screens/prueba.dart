@@ -18,7 +18,7 @@ class MyHomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Llama a la función para crear un usuario
-                _firestoreService.createClient('John', 'Travolta', 'Carretera a Morelia #1400', '4611225516', 'correo@gmail.com');
+                _firestoreService.createClient('John', 'Travolta', 'Carretera a Morelia #1400', '4611225516', 'correo@gmail.com', 'http://google.com');
               },
               child: Text('Create User'),
             ),

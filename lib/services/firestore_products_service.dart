@@ -4,12 +4,13 @@ class FirestoreProductService{
   final CollectionReference _usersCollection = FirebaseFirestore.instance.collection('productos');
 
   //Funcion para insertar un producto
-  Future<void> createProduct(String nombre, String descripcion, double precio) async {
+  Future<void> createProduct(String nombre, String descripcion, double precio, String imagen) async {
     try{
       await _usersCollection.add({
         'nombre': nombre,
         'descripcion': descripcion,
-        'precio': precio
+        'precio': precio,
+        'imagen': imagen
       });
       print('Product created succesfully');
     } catch(e){
@@ -35,12 +36,13 @@ class FirestoreProductService{
   }
 
   //Funcion para actualizar un producto
-  Future<void> updateProduct(String idProducto, String nombre, String descripcion, double precio) async {
+  Future<void> updateProduct(String idProducto, String nombre, String descripcion, double precio, String imagen) async {
     try {
       await _usersCollection.doc(idProducto).update({
         'nombre': nombre,
         'descripcion': descripcion,
-        'precio': precio
+        'precio': precio,
+        'imagen': imagen
       });
       print('Product updated successfully!');
     } catch (e) {

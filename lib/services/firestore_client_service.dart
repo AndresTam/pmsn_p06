@@ -4,14 +4,15 @@ class FirestoreClientService{
   final CollectionReference _usersCollection = FirebaseFirestore.instance.collection('clientes');
 
   //Funcion para insertar un cliente
-  Future<void> createClient(String nombre, String apellido, String direccion, String telefono, String correo) async {
+  Future<void> createClient(String nombre, String apellido, String direccion, String telefono, String correo, String imagen) async {
     try{
       await _usersCollection.add({
         'nombre': nombre,
         'apellido': apellido,
         'direccion': direccion,
         'telefono': telefono,
-        'correo': correo
+        'correo': correo,
+        'imagen': imagen
       });
       print('Client created succesfully');
     } catch(e){
@@ -37,14 +38,15 @@ class FirestoreClientService{
   }
 
   //Funcion para actualizar un cliente
-  Future<void> updateClient(String idCliente, String nombre, String apellido, String direccion, String telefono, String correo) async {
+  Future<void> updateClient(String idCliente, String nombre, String apellido, String direccion, String telefono, String correo, String imagen) async {
     try {
       await _usersCollection.doc(idCliente).update({
         'nombre': nombre,
         'apellido': apellido,
         'direccion': direccion,
         'telefono': telefono,
-        'correo': correo
+        'correo': correo,
+        'imagen': imagen
       });
       print('Client updated successfully!');
     } catch (e) {
