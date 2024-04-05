@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:pmsn_06/services/firestore_client_service.dart';
 import 'package:pmsn_06/services/firestore_products_service.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -8,7 +6,7 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final FirestoreProductService _firestoreProductService = FirestoreProductService();
+  final FirestoreProductService firestoreProductService = FirestoreProductService();
     return Scaffold(
       appBar: AppBar(
         elevation: 10,
@@ -27,42 +25,40 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Container(
-        child: FutureBuilder<List<Map<String, dynamic>>>(
-          future: _firestoreProductService.getProducts(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('Error al cargar los productos'),
-              );
-            }
-            List<Map<String, dynamic>> products = snapshot.data!;
-            List<Map<String, dynamic>> sillasProducts = products
-                .where((product) => product['categoria'] == 'sillas')
-                .toList();
-            List<Map<String, dynamic>> mesasProducts = products
-                .where((product) => product['categoria'] == 'mesas')
-                .toList();
-            return ListView(
-              scrollDirection: Axis.vertical,
-              children: [
-                Column(
-                  children: [
-                    const SizedBox(height: 20.0),
-                    _buildSection('Sillas', sillasProducts),
-                    const SizedBox(height: 20.0),
-                    _buildSection('Mesas', mesasProducts),
-                  ],
-                ),
-              ],
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: firestoreProductService.getProducts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
             );
-          },
-        ),
+          }
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text('Error al cargar los productos'),
+            );
+          }
+          List<Map<String, dynamic>> products = snapshot.data!;
+          List<Map<String, dynamic>> sillasProducts = products
+              .where((product) => product['categoria'] == 'sillas')
+              .toList();
+          List<Map<String, dynamic>> mesasProducts = products
+              .where((product) => product['categoria'] == 'mesas')
+              .toList();
+          return ListView(
+            scrollDirection: Axis.vertical,
+            children: [
+              Column(
+                children: [
+                  const SizedBox(height: 20.0),
+                  _buildSection('Sillas', sillasProducts),
+                  const SizedBox(height: 20.0),
+                  _buildSection('Mesas', mesasProducts),
+                ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -82,7 +78,7 @@ Widget _buildSection(String title, List<Map<String, dynamic>> products) {
             ),
           ),
         ),
-        Container(
+        SizedBox(
           height: 500,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
