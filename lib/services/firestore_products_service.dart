@@ -1,18 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class FirestoreProductService{
-  final CollectionReference _usersCollection = FirebaseFirestore.instance.collection('productos');
+class FirestoreProductService {
+  final CollectionReference _usersCollection =
+      FirebaseFirestore.instance.collection('productos');
 
   //Funcion para insertar un producto
-  Future<void> createProduct(String nombre, String descripcion, double precio) async {
-    try{
+  Future<void> createProduct(
+      String nombre, String descripcion, double precio, String imagen) async {
+    try {
       await _usersCollection.add({
         'nombre': nombre,
         'descripcion': descripcion,
-        'precio': precio
+        'precio': precio,
+        'imagen': imagen
       });
       print('Product created succesfully');
-    } catch(e){
+    } catch (e) {
       print('Error creating product: $e');
     }
   }
@@ -27,6 +30,7 @@ class FirestoreProductService{
         productsList.add(userData);
       });
       //print(productsList);
+      print(productsList);
       return productsList;
     } catch (e) {
       print('Error getting users: $e');
@@ -35,12 +39,14 @@ class FirestoreProductService{
   }
 
   //Funcion para actualizar un producto
-  Future<void> updateProduct(String idProducto, String nombre, String descripcion, double precio) async {
+  Future<void> updateProduct(String idProducto, String nombre,
+      String descripcion, double precio, String imagen) async {
     try {
       await _usersCollection.doc(idProducto).update({
         'nombre': nombre,
         'descripcion': descripcion,
-        'precio': precio
+        'precio': precio,
+        'imagen': imagen
       });
       print('Product updated successfully!');
     } catch (e) {
@@ -55,6 +61,26 @@ class FirestoreProductService{
       print('Product deleted successfully!');
     } catch (e) {
       print('Error deleting product: $e');
+    }
+  }
+
+  //Función para llamar a un producto
+  Future<Map<String, dynamic>?> getProductById(String nombre) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _usersCollection.where('nombre', isEqualTo: nombre).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Devuelve los datos del primer documento encontrado (suponiendo que los nombres de los productos son únicos)
+        print(querySnapshot.docs.first.data() as Map<String, dynamic>);
+        return querySnapshot.docs.first.data() as Map<String, dynamic>;
+      } else {
+        print('No se encontró ningún producto con el nombre especificado.');
+        return null;
+      }
+    } catch (e) {
+      print('Error obteniendo el producto: $e');
+      return null;
     }
   }
 }
