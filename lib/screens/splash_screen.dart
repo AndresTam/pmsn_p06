@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:pmsn_06/screens/detalle_renta_screen.dart';
+import 'package:pmsn_06/screens/dashboard_screen.dart';
 import 'package:splash_view/source/presentation/pages/splash_view.dart';
 import 'package:splash_view/source/presentation/widgets/done.dart';
 
@@ -18,7 +18,7 @@ class SplashScreen extends StatelessWidget {
         width: 130,
       ),
       done: Done(
-        const DetalleRentaScreen(),
+        const DashboardScreen(),
         animationDuration: const Duration(milliseconds: 500),
       ),
     );
