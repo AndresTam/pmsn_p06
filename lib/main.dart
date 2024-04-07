@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Rent Aplication',
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
           child: DashboardScreen(),

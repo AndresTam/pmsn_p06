@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pmsn_06/screens/alquiler_screen.dart';
 import 'package:pmsn_06/services/firestore_products_service.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -13,10 +14,10 @@ class DashboardScreen extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 241, 241, 241),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(15), // Redondea los bordes inferiores
+            bottom: Radius.circular(15), 
           ),
         ),
-        centerTitle: true, // Centra el título
+        centerTitle: true, 
         title: const Text(
           'Productos',
           style: TextStyle(
@@ -24,6 +25,17 @@ class DashboardScreen extends StatelessWidget {
             fontSize: 35,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info), 
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AlquilerScreen()), // Navega a la pantalla de carrito
+              );
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: firestoreProductService.getProducts(),
@@ -105,7 +117,7 @@ Widget _productCard(String nombreProducto, String precio, String imagePath){
     child: Card(
       elevation: 10,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0), // adds rounded corners
+        borderRadius: BorderRadius.circular(15.0),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
