@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pmsn_06/screens/Registro_datos.dart';
 import 'package:pmsn_06/services/firestore_products_service.dart';
 
 class DetalleRentaScreen extends StatefulWidget {
-  const DetalleRentaScreen({super.key});
+  final Map<String, dynamic> product;
+
+  const DetalleRentaScreen({Key? key, required this.product}) : super(key: key);
 
   @override
   State<DetalleRentaScreen> createState() => _DetalleRentaScreenState();
@@ -11,6 +14,9 @@ class DetalleRentaScreen extends StatefulWidget {
 class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
   final FirestoreProductService _firestoreProductsService =
       FirestoreProductService();
+  late Map<String, dynamic>
+      product; // Cambié la inicialización para hacerla tardía (late)
+
   final EspacioVertical = const SizedBox(
     height: 25,
   );
@@ -22,10 +28,13 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
   final TextEditingController _totalController = TextEditingController();
 
   double? _precio;
+  double? _total; // Agrega una variable para almacenar el total
 
   @override
   void initState() {
     super.initState();
+    product = widget
+        .product; // Inicializa el producto con el valor pasado desde el widget
     _quantityController.addListener(_updateTotal);
   }
 
@@ -44,9 +53,10 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
     if (_precio != null && quantity != null) {
       final double total = _precio! * quantity;
 
-      // Actualizamos el valor del segundo TextField con el total
-      _totalController.text =
-          total.toStringAsFixed(2); // Formateamos el total a dos decimales
+      setState(() {
+        _total = total;
+        _totalController.text = total.toStringAsFixed(2);
+      });
     }
   }
 
@@ -60,28 +70,38 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(
-      //   child: const Icon(Icons.store),
-      //   onPressed: () => showModal(context),
-      // ),
       appBar: AppBar(
         title: const Text("Detalla Producto"),
         backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
         child: FutureBuilder(
-          future: _firestoreProductsService
-              .getProductById('Manteles redondos de tela blanca'),
+          future: _firestoreProductsService.getProductById(product['nombre']),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return Center(
+                child: CircularProgressIndicator(),
+              );
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
               if (snapshot.data != null) {
                 Map<String, dynamic> productData = snapshot.data!;
-                _precio = productData['precio'];
+                dynamic precioValue = productData['precio'];
+                if (precioValue is String) {
+                  if (precioValue.contains('.')) {
+                    _precio = double.parse(precioValue);
+                  } else {
+                    _precio = int.parse(precioValue).toDouble();
+                  }
+                } else if (precioValue is double || precioValue is int) {
+                  _precio = precioValue.toDouble();
+                } else {
+                  _precio =
+                      0.0; // Valor predeterminado si no es String, double o int
+                }
                 return Padding(
                   padding: const EdgeInsets.all(30.0),
                   child: Column(
@@ -91,8 +111,8 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
                         productData['nombre'] ?? 'Sin nombre',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 40,
                         ),
                       ),
                       EspacioVertical,
@@ -106,14 +126,13 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
                           child: Image(
                             height: size.height * 0.3,
                             image: NetworkImage(
-                              'https://cdn-icons-png.flaticon.com/512/4642/4642411.png',
-                              // productData['imagen'],
+                              productData['imagen'],
                             ),
                           ),
                         ),
                       ),
                       Text(
-                        'Precio: \$${productData['precio'].toString()}' ??
+                        'Precio: \$${_precio?.toStringAsFixed(2)}' ??
                             'Precio desconocido',
                         textAlign: TextAlign.left,
                         style: const TextStyle(
@@ -141,8 +160,7 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
                             Expanded(
                               child: TextFormField(
                                 controller: _totalController,
-                                readOnly:
-                                    true, // Hace que el TextField sea de solo lectura
+                                readOnly: true,
                                 decoration: const InputDecoration(
                                   border: UnderlineInputBorder(),
                                   filled: true,
@@ -171,14 +189,27 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
                         alignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
-                              onPressed: () {},
-                              child: const Text('Rentar ahora')),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RegistroDatosScreen(
+                                    product: productData,
+                                    total: _total,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: const Text('Rentar ahora'),
+                          ),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              // Agregar lógica para agregar a carrito aquí
+                            },
                             child: const Text('Agregar a carrito'),
-                          )
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 );

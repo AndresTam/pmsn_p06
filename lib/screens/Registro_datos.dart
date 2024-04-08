@@ -1,37 +1,49 @@
+import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:pmsn_06/services/firestore_alquiler_detail_service.dart';
+import 'package:pmsn_06/services/firestore_alquiler_service.dart';
+import 'package:pmsn_06/services/firestore_client_service.dart';
+import 'package:pmsn_06/services/firestore_products_service.dart';
 
 class RegistroDatosScreen extends StatefulWidget {
-  const RegistroDatosScreen({Key? key}) : super(key: key);
+  final Map<String, dynamic> product;
+  final dynamic total;
+
+  const RegistroDatosScreen(
+      {Key? key, required this.product, required this.total})
+      : super(key: key);
 
   @override
   State<RegistroDatosScreen> createState() => _RegistroDatosScreenState();
 }
 
 class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
+  final FirestoreClientService _firestoreService = FirestoreClientService();
+  final FirestoreAlquilerService _firestoreAlquilerService =
+      FirestoreAlquilerService();
+  final FirestoreAlquilerDetailService _firestoreAlquilerDetailService =
+      FirestoreAlquilerDetailService();
+  final FirestoreProductService _firestoreProductService =
+      FirestoreProductService();
   final GlobalKey<FormFieldState<String>> _passwordFieldKey =
       GlobalKey<FormFieldState<String>>();
-  static const menuItems = <String>[
-    'One',
-    'Two',
-    'Three',
-    'Four',
-  ];
-  final List<DropdownMenuItem<String>> _dropDownMenuItems = menuItems
-      .map(
-        (String value) => DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        ),
-      )
-      .toList();
+
   final conFechaAlquiler = TextEditingController();
   final conFechaDevolucion = TextEditingController();
+  final conDescripcion = TextEditingController();
   List<Widget> generatedWidgets = [];
   String? _name;
+  String? _apellidos;
+  String? _address;
   String? _phoneNumber;
   String? _email;
   String? _password;
+  String? IDCliente;
+  String? IDProducto;
+  String? NombreProdcuto;
+  String? IDAlquiler;
 
   String? _validateName(String? value) {
     if (value?.isEmpty ?? false) {
@@ -49,221 +61,266 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
 
   final SeparacionVertical = const SizedBox(height: 24.0);
 
+  String? _validateDates(String? alquiler, String? devolucion) {
+    if (alquiler == null || devolucion == null) return null;
+
+    final alquilerDate = DateTime.tryParse(alquiler);
+    final devolucionDate = DateTime.tryParse(devolucion);
+
+    if (alquilerDate != null && devolucionDate != null) {
+      if (devolucionDate.isBefore(alquilerDate)) {
+        return 'La fecha de devolución no puede ser anterior a la fecha de alquiler';
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            const Text(
-              'Cliente',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SeparacionVertical,
-            TextFormField(
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                border: UnderlineInputBorder(),
-                filled: true,
-                icon: Icon(Icons.person),
-                labelText: 'Nombres',
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Registro de Datos'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const Text(
+                'Cliente',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              onSaved: (String? value) {
-                this._name = value;
-                print('name=$_name');
-              },
-              validator: _validateName,
-            ),
-            SeparacionVertical,
-            TextFormField(
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                border: UnderlineInputBorder(),
-                filled: true,
-                icon: Icon(Icons.person_add_alt_1),
-                labelText: 'Apellidos',
+              SeparacionVertical,
+              TextFormField(
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  filled: true,
+                  icon: Icon(Icons.person),
+                  labelText: 'Nombres',
+                ),
+                onSaved: (String? value) {
+                  this._name = value;
+                  print('name=$_name');
+                },
+                validator: _validateName,
               ),
-              onSaved: (String? value) {
-                this._name = value;
-                print('name=$_name');
-              },
-              validator: _validateName,
-            ),
-            SeparacionVertical,
-            TextFormField(
-              decoration: const InputDecoration(
-                border: UnderlineInputBorder(),
-                filled: true,
-                icon: Icon(Icons.phone),
-                labelText: 'Número de Teléfono',
-                prefixText: '+52 ',
+              SeparacionVertical,
+              TextFormField(
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  filled: true,
+                  icon: Icon(Icons.person_add_alt_1),
+                  labelText: 'Apellidos',
+                ),
+                onSaved: (String? value) {
+                  this._apellidos = value;
+                  print('name=$_apellidos');
+                },
+                validator: _validateName,
               ),
-              keyboardType: TextInputType.phone,
-              onSaved: (String? value) {
-                this._phoneNumber = value;
-                print('phoneNumber=$_phoneNumber');
-              },
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
-              ],
-            ),
-            SeparacionVertical,
-            TextFormField(
-              decoration: const InputDecoration(
-                border: UnderlineInputBorder(),
-                filled: true,
-                icon: Icon(Icons.email),
-                hintText: 'ejemplo@dominio.com',
-                labelText: 'E-mail',
+              SeparacionVertical,
+              TextFormField(
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  filled: true,
+                  icon: Icon(Icons.phone),
+                  labelText: 'Número de Teléfono',
+                  prefixText: '+52 ',
+                ),
+                keyboardType: TextInputType.phone,
+                onSaved: (String? value) {
+                  this._phoneNumber = value;
+                  print('phoneNumber=$_phoneNumber');
+                },
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
               ),
-              keyboardType: TextInputType.emailAddress,
-              onSaved: (String? value) {
-                this._email = value;
-                print('email=$_email');
-              },
-            ),
-            SeparacionVertical,
-            const Text(
-              'Producto(s)',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SeparacionVertical,
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: generatedWidgets.length,
-              itemBuilder: (context, index) {
-                return generatedWidgets[index];
-              },
-            ),
-            SeparacionVertical,
-            ElevatedButton(
-              onPressed: () {
-                setState(
-                  () {
-                    generatedWidgets.add(
-                      Column(
-                        children: [
-                          SeparacionVertical,
-                          Container(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12.0),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: const Color.fromARGB(255, 0, 0, 0),
-                              ),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: DropdownButton(
-                              value: _btn2SelectedVal,
-                              hint: const Row(
-                                children: [
-                                  Icon(Icons.shopping_cart),
-                                  SizedBox(width: 8.0),
-                                  Text(
-                                    'Producto',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ],
-                              ),
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  setState(() => _btn2SelectedVal = newValue);
-                                }
-                              },
-                              items: _dropDownMenuItems,
-                              icon: const Icon(Icons.arrow_drop_down),
-                              underline: const SizedBox(),
-                            ),
-                          ),
-                          SeparacionVertical,
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                      icon: Icon(Icons.format_list_numbered),
-                                      labelText: 'Ingrese la cantidad:',
-                                      errorText: _numberInputIsValid
-                                          ? null
-                                          : 'Ingrese un número entero!',
-                                      border: UnderlineInputBorder(),
-                                      filled: true,
-                                    ),
-                                    onChanged: (String val) {
-                                      final v = int.tryParse(val);
-                                      debugPrint('parsed value = $v');
-                                      if (v == null) {
-                                        setState(
-                                            () => _numberInputIsValid = false);
-                                      } else {
-                                        setState(
-                                            () => _numberInputIsValid = true);
-                                      }
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 30),
-                                Expanded(
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      border: UnderlineInputBorder(),
-                                      filled: true,
-                                      icon: Icon(Icons.attach_money),
-                                      labelText: 'Total de renta',
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+              SeparacionVertical,
+              TextFormField(
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  filled: true,
+                  icon: Icon(Icons.email),
+                  hintText: 'ejemplo@dominio.com',
+                  labelText: 'E-mail',
+                ),
+                keyboardType: TextInputType.emailAddress,
+                onSaved: (String? value) {
+                  this._email = value;
+                  print('email=$_email');
+                },
+              ),
+              SeparacionVertical,
+              const Text(
+                'Producto(s)',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SeparacionVertical,
+              Text(
+                "${widget.product['nombre']}",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SeparacionVertical,
+              Text(
+                "Precio: \$ ${widget.total}",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SeparacionVertical,
+              TextFormField(
+                controller: conFechaAlquiler,
+                keyboardType: TextInputType.none,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Fecha de alquiler',
+                ),
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101));
+
+                  if (pickedDate != null) {
+                    String formattedDate =
+                        DateFormat('yyyy-MM-dd').format(pickedDate);
+                    setState(() {
+                      conFechaAlquiler.text = formattedDate;
+                    });
+                  } else {
+                    print("Date is not selected");
+                  }
+                },
+              ),
+              SeparacionVertical,
+              TextFormField(
+                controller: conFechaDevolucion,
+                keyboardType: TextInputType.none,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Fecha de devolución',
+                ),
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101));
+
+                  if (pickedDate != null) {
+                    String formattedDate =
+                        DateFormat('yyyy-MM-dd').format(pickedDate);
+                    setState(() {
+                      conFechaDevolucion.text = formattedDate;
+                    });
+                  } else {
+                    print("Date is not selected");
+                  }
+                },
+                validator: (value) => _validateDates(
+                    conFechaAlquiler.text, value), // Validación de fechas
+              ),
+              SeparacionVertical,
+              TextFormField(
+                controller: conDescripcion,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  helperText: 'Agrega una pequeña descripción de la renta',
+                  labelText: 'Descripción',
+                ),
+                maxLines: 3,
+                maxLength: 300, // Limitar a 300 caracteres
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    // Crear cliente
+                    _firestoreService.createClient(
+                      _name!,
+                      _apellidos!,
+                      _address ?? '',
+                      _phoneNumber!,
+                      _email!,
+                      '',
                     );
-                  },
-                );
-              },
-              child: Text('Agregar Producto'),
-            ),
-            SeparacionVertical,
-            TextFormField(
-              controller: conFechaAlquiler,
-              keyboardType: TextInputType.none,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Fecha de alquiler',
+
+                    // Obtener ID del cliente
+                    IDCliente = await _firestoreService.getDocumentIdFromName(
+                      _name!,
+                      _apellidos!,
+                    );
+
+                    print(IDCliente);
+
+                    // Obtener ID del producto
+                    NombreProdcuto = widget.product['nombre'].toString();
+                    print(NombreProdcuto);
+
+                    IDProducto = await _firestoreProductService
+                        .getDocumentIdFromName(NombreProdcuto!);
+                    print(IDProducto);
+                    // Crear alquiler
+                    await _firestoreAlquilerService.createAlquiler(
+                      IDCliente!,
+                      conFechaAlquiler.text,
+                      conFechaDevolucion.text,
+                      widget.total,
+                    );
+
+                    // Obtener ID del alquiler
+                    IDAlquiler = await _firestoreAlquilerService
+                        .getDocumentId(IDCliente!);
+                    print(IDAlquiler);
+                    int cantidad = widget.product['precio'] / widget.total;
+                    // Crear detalle de alquiler
+                    _firestoreAlquilerDetailService.createAlquilerDetail(
+                      IDAlquiler!,
+                      IDProducto!,
+                      cantidad, // Cantidad
+                      widget.total, // Precio unitario
+                      widget.total, // Subtotal
+                    );
+                    ArtSweetAlert.show(
+                      context: context,
+                      artDialogArgs: ArtDialogArgs(
+                          type: ArtSweetAlertType.danger,
+                          title: "Renta Creada",
+                          text: ""),
+                    );
+                  } catch (e) {
+                    print('no se pudo crear');
+                    ArtSweetAlert.show(
+                      context: context,
+                      artDialogArgs: ArtDialogArgs(
+                          type: ArtSweetAlertType.danger,
+                          title: "Renta No Creada",
+                          text: ""),
+                    );
+                  }
+                  // // Navegar a la pantalla de éxito
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  //   builder: (context) => RentaExitoScreen(),
+                  // ));
+                },
+                child: const Text('Rentar'),
               ),
-              onTap: () async {
-                // ...
-              },
-            ),
-            SeparacionVertical,
-            TextFormField(
-              controller: conFechaDevolucion,
-              keyboardType: TextInputType.none,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Fecha de devolución',
+              ElevatedButton(
+                onPressed: () async {
+                  NombreProdcuto = widget.product['nombre'].toString();
+                  double cantidad = widget.total / widget.product['precio'];
+                  print(NombreProdcuto);
+                  print(cantidad);
+                  IDProducto = await _firestoreProductService
+                      .getDocumentIdFromName(NombreProdcuto!);
+                  print('dasdsa ${IDProducto}');
+                },
+                child: const Text('Rentar2'),
               ),
-              onTap: () async {
-                // ...
-              },
-            ),
-            SeparacionVertical,
-            TextFormField(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                helperText: 'Agrega una pequeña descripción de la renta',
-                labelText: 'Descripción',
-              ),
-              maxLines: 3,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

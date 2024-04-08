@@ -90,4 +90,29 @@ class FirestoreProductService {
       return null;
     }
   }
+
+  Future<String?> getDocumentIdFromName(String nombre) async {
+    try {
+      // Realizar una consulta para buscar documentos que coincidan con el nombre
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('productos')
+          .where('nombre', isEqualTo: nombre)
+          .where(FieldPath.documentId)
+          .limit(1) // Limitar la consulta a un solo resultado
+          .get();
+
+      // Verificar si hay resultados
+      if (querySnapshot.docs.isNotEmpty) {
+        // Obtener el Documento ID del primer documento que coincide
+        String documentId = querySnapshot.docs.first.id;
+        return documentId;
+      } else {
+        print('No se encontraron documentos con el nombre $nombre');
+        return null;
+      }
+    } catch (error) {
+      print('Error al buscar el Documento ID: $error');
+      return null;
+    }
+  }
 }

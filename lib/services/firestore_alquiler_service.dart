@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class FirestoreAlquilerService{
-  final CollectionReference _usersCollection = FirebaseFirestore.instance.collection('alquiler');
+class FirestoreAlquilerService {
+  final CollectionReference _usersCollection =
+      FirebaseFirestore.instance.collection('alquiler');
 
   //Funcion para insertar un alquiler
-  Future<void> createAlquiler(String idCliente, String fechaAlquiler, String fechaDevolucion, double total) async {
-    try{
+  Future<void> createAlquiler(String idCliente, String fechaAlquiler,
+      String fechaDevolucion, double total) async {
+    try {
       await _usersCollection.add({
         'idCliente': idCliente,
         'fechaAlquiler': fechaAlquiler,
@@ -13,7 +15,7 @@ class FirestoreAlquilerService{
         'total': total
       });
       print('Alquiler created succesfully');
-    } catch(e){
+    } catch (e) {
       print('Error creating alquiler: $e');
     }
   }
@@ -36,7 +38,8 @@ class FirestoreAlquilerService{
   }
 
   //Funcion para actualizar un alquiler
-  Future<void> updateAlquiler(String idAlquiler, String idCliente, String fechaAlquiler, String fechaDevolucion, double total) async {
+  Future<void> updateAlquiler(String idAlquiler, String idCliente,
+      String fechaAlquiler, String fechaDevolucion, double total) async {
     try {
       await _usersCollection.doc(idAlquiler).update({
         'idCliente': idCliente,
@@ -57,6 +60,31 @@ class FirestoreAlquilerService{
       print('Alquiler deleted successfully!');
     } catch (e) {
       print('Error deleting alquiler: $e');
+    }
+  }
+
+  Future<String?> getDocumentId(String IdCliente) async {
+    try {
+      // Realizar una consulta para buscar documentos que coincidan con el nombre
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('clientes')
+          .where('nombre', isEqualTo: IdCliente)
+          .where(FieldPath.documentId)
+          .limit(1) // Limitar la consulta a un solo resultado
+          .get();
+
+      // Verificar si hay resultados
+      if (querySnapshot.docs.isNotEmpty) {
+        // Obtener el Documento ID del primer documento que coincide
+        String documentId = querySnapshot.docs.first.id;
+        return documentId;
+      } else {
+        print('No se encontraron documentos con el nombre $IdCliente');
+        return null;
+      }
+    } catch (error) {
+      print('Error al buscar el Documento ID: $error');
+      return null;
     }
   }
 }
