@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pmsn_06/screens/alquiler_screen.dart';
 import 'package:pmsn_06/screens/detalle_renta_screen.dart';
 import 'package:pmsn_06/services/firestore_products_service.dart';
 
@@ -26,6 +27,17 @@ class DashboardScreen extends StatelessWidget {
             fontSize: 35,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.calendar_today), // Icono de calendario
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AlquilerScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Container(
         child: FutureBuilder<List<Map<String, dynamic>>>(
