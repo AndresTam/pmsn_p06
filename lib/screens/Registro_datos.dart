@@ -4,15 +4,20 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pmsn_06/services/firestore_alquiler_detail_service.dart';
 import 'package:pmsn_06/services/firestore_alquiler_service.dart';
+import 'package:pmsn_06/services/firestore_carrito_service.dart';
 import 'package:pmsn_06/services/firestore_client_service.dart';
 import 'package:pmsn_06/services/firestore_products_service.dart';
 
 class RegistroDatosScreen extends StatefulWidget {
   final Map<String, dynamic> product;
   final dynamic total;
+  final dynamic longitud;
 
   const RegistroDatosScreen(
-      {Key? key, required this.product, required this.total})
+      {Key? key,
+      required this.product,
+      required this.total,
+      required this.longitud})
       : super(key: key);
 
   @override
@@ -27,13 +32,23 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
       FirestoreAlquilerDetailService();
   final FirestoreProductService _firestoreProductService =
       FirestoreProductService();
+  final FirestoreCarritoService _firestoreCarritoService =
+      FirestoreCarritoService();
   final GlobalKey<FormFieldState<String>> _passwordFieldKey =
       GlobalKey<FormFieldState<String>>();
 
+  // TextEditingController
+  final nombreController = TextEditingController();
+  final apellidosController = TextEditingController();
+  final telefonoController = TextEditingController();
+  final emailController = TextEditingController();
+  final direccionController = TextEditingController();
   final conFechaAlquiler = TextEditingController();
   final conFechaDevolucion = TextEditingController();
   final conDescripcion = TextEditingController();
+
   List<Widget> generatedWidgets = [];
+
   String? _name;
   String? _apellidos;
   String? _address;
@@ -44,6 +59,7 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
   String? IDProducto;
   String? NombreProdcuto;
   String? IDAlquiler;
+  double? cantidad;
 
   String? _validateName(String? value) {
     if (value?.isEmpty ?? false) {
@@ -94,35 +110,43 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
               SeparacionVertical,
               TextFormField(
                 textCapitalization: TextCapitalization.words,
+                controller: nombreController,
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),
                   filled: true,
                   icon: Icon(Icons.person),
                   labelText: 'Nombres',
                 ),
-                onSaved: (String? value) {
-                  this._name = value;
-                  print('name=$_name');
-                },
                 validator: _validateName,
               ),
               SeparacionVertical,
               TextFormField(
                 textCapitalization: TextCapitalization.words,
+                controller: apellidosController, // Agregar el controlador aquí
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),
                   filled: true,
                   icon: Icon(Icons.person_add_alt_1),
                   labelText: 'Apellidos',
                 ),
-                onSaved: (String? value) {
-                  this._apellidos = value;
-                  print('name=$_apellidos');
-                },
                 validator: _validateName,
               ),
               SeparacionVertical,
               TextFormField(
+                textCapitalization: TextCapitalization.words,
+                controller: direccionController, // Agregar el controlador aquí
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  filled: true,
+                  icon: Icon(Icons.house),
+                  labelText: 'Direccion',
+                ),
+                validator: _validateName,
+              ),
+              SeparacionVertical,
+              TextFormField(
+                keyboardType: TextInputType.phone,
+                controller: telefonoController,
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),
                   filled: true,
@@ -130,17 +154,14 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
                   labelText: 'Número de Teléfono',
                   prefixText: '+52 ',
                 ),
-                keyboardType: TextInputType.phone,
-                onSaved: (String? value) {
-                  this._phoneNumber = value;
-                  print('phoneNumber=$_phoneNumber');
-                },
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.digitsOnly
                 ],
               ),
               SeparacionVertical,
               TextFormField(
+                keyboardType: TextInputType.emailAddress,
+                controller: emailController,
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),
                   filled: true,
@@ -148,7 +169,6 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
                   hintText: 'ejemplo@dominio.com',
                   labelText: 'E-mail',
                 ),
-                keyboardType: TextInputType.emailAddress,
                 onSaved: (String? value) {
                   this._email = value;
                   print('email=$_email');
@@ -161,7 +181,9 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
               ),
               SeparacionVertical,
               Text(
-                "${widget.product['nombre']}",
+                widget.longitud == 0
+                    ? "${widget.product['nombre']}"
+                    : "Cantidad de Productos: ${widget.longitud}",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SeparacionVertical,
@@ -209,12 +231,14 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
                       initialDate: DateTime.now(),
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2101));
+                  print(widget.product.length);
 
                   if (pickedDate != null) {
                     String formattedDate =
                         DateFormat('yyyy-MM-dd').format(pickedDate);
                     setState(() {
                       conFechaDevolucion.text = formattedDate;
+                      print("fecha: ${conFechaDevolucion}");
                     });
                   } else {
                     print("Date is not selected");
@@ -234,34 +258,32 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
                 maxLines: 3,
                 maxLength: 300, // Limitar a 300 caracteres
               ),
+              SeparacionVertical,
               ElevatedButton(
                 onPressed: () async {
                   try {
                     // Crear cliente
                     _firestoreService.createClient(
-                      _name!,
-                      _apellidos!,
-                      _address ?? '',
-                      _phoneNumber!,
-                      _email!,
+                      nombreController.text,
+                      apellidosController.text,
+                      direccionController.text,
+                      telefonoController.text,
+                      emailController.text,
                       '',
                     );
 
                     // Obtener ID del cliente
                     IDCliente = await _firestoreService.getDocumentIdFromName(
-                      _name!,
-                      _apellidos!,
+                      nombreController.text,
+                      apellidosController.text,
+                      direccionController.text,
+                      telefonoController.text,
+                      emailController.text,
+                      '',
                     );
 
                     print(IDCliente);
 
-                    // Obtener ID del producto
-                    NombreProdcuto = widget.product['nombre'].toString();
-                    print(NombreProdcuto);
-
-                    IDProducto = await _firestoreProductService
-                        .getDocumentIdFromName(NombreProdcuto!);
-                    print(IDProducto);
                     // Crear alquiler
                     await _firestoreAlquilerService.createAlquiler(
                       IDCliente!,
@@ -274,19 +296,35 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
                     IDAlquiler = await _firestoreAlquilerService
                         .getDocumentId(IDCliente!);
                     print(IDAlquiler);
-                    int cantidad = widget.product['precio'] / widget.total;
+                    cantidad = widget.product['precio'] / widget.total;
+
                     // Crear detalle de alquiler
-                    _firestoreAlquilerDetailService.createAlquilerDetail(
-                      IDAlquiler!,
-                      IDProducto!,
-                      cantidad, // Cantidad
-                      widget.total, // Precio unitario
-                      widget.total, // Subtotal
-                    );
+                    if (widget.longitud == 0) {
+                      // Obtener ID del producto
+                      NombreProdcuto = widget.product['nombre'].toString();
+                      print(NombreProdcuto);
+                      IDProducto = await _firestoreProductService
+                          .getDocumentIdFromName(NombreProdcuto!);
+                      print(IDProducto);
+                      _firestoreAlquilerDetailService.createAlquilerDetail(
+                        IDAlquiler!,
+                        IDProducto!,
+                        cantidad!, // Cantidad
+                        widget.product['precio'], // Precio unitario
+                        widget.total, // Subtotal
+                      );
+                    } else {
+                      _firestoreCarritoService.copiarDatosSimilares(
+                        "carrito",
+                        "alquiler-detail",
+                        IDAlquiler!,
+                      );
+                    }
+
                     ArtSweetAlert.show(
                       context: context,
                       artDialogArgs: ArtDialogArgs(
-                          type: ArtSweetAlertType.danger,
+                          type: ArtSweetAlertType.success,
                           title: "Renta Creada",
                           text: ""),
                     );
@@ -300,24 +338,8 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
                           text: ""),
                     );
                   }
-                  // // Navegar a la pantalla de éxito
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //   builder: (context) => RentaExitoScreen(),
-                  // ));
                 },
                 child: const Text('Rentar'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  NombreProdcuto = widget.product['nombre'].toString();
-                  double cantidad = widget.total / widget.product['precio'];
-                  print(NombreProdcuto);
-                  print(cantidad);
-                  IDProducto = await _firestoreProductService
-                      .getDocumentIdFromName(NombreProdcuto!);
-                  print('dasdsa ${IDProducto}');
-                },
-                child: const Text('Rentar2'),
               ),
             ],
           ),

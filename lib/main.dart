@@ -36,8 +36,11 @@ class MyApp extends StatelessWidget {
             "/dRenta": (context) => const DetalleRentaScreen(
                   product: {},
                 ),
-            "/Rdatos": (context) =>
-                const RegistroDatosScreen(product: {}, total: {}),
+            "/Rdatos": (context) => const RegistroDatosScreen(
+                  product: {},
+                  total: {},
+                  longitud: {},
+                ),
           },
           onUnknownRoute: (settings) {
             // Maneja rutas desconocidas

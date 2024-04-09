@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class FirestoreAlquilerDetailService{
-  final CollectionReference _usersCollection = FirebaseFirestore.instance.collection('alquiler-detail');
+class FirestoreAlquilerDetailService {
+  final CollectionReference _usersCollection =
+      FirebaseFirestore.instance.collection('alquiler-detail');
 
   //Funcion para insertar un alquiler
-  Future<void> createAlquilerDetail(String idAlquiler, String idProducto, int cantidad, double precioUnitario, double subtotal) async {
-    try{
+  Future<void> createAlquilerDetail(String idAlquiler, String idProducto,
+      double cantidad, double precioUnitario, double subtotal) async {
+    try {
       await _usersCollection.add({
         'idAlquiler': idAlquiler,
         'idProducto': idProducto,
@@ -14,7 +16,7 @@ class FirestoreAlquilerDetailService{
         'subtotal': subtotal,
       });
       print('Alquiler detail created succesfully');
-    } catch(e){
+    } catch (e) {
       print('Error creating alquiler detail: $e');
     }
   }
@@ -37,7 +39,13 @@ class FirestoreAlquilerDetailService{
   }
 
   //Funcion para actualizar un alquiler
-  Future<void> updateAlquilerDetail(String idAlquilerDetalle, String idAlquiler, String idProducto, int cantidad, double precioUnitario, double subtotal) async {
+  Future<void> updateAlquilerDetail(
+      String idAlquilerDetalle,
+      String idAlquiler,
+      String idProducto,
+      int cantidad,
+      double precioUnitario,
+      double subtotal) async {
     try {
       await _usersCollection.doc(idAlquilerDetalle).update({
         'idAlquiler': idAlquiler,

@@ -67,13 +67,18 @@ class FirestoreClientService {
     }
   }
 
-  Future<String?> getDocumentIdFromName(String nombre, String apellidos) async {
+  Future<String?> getDocumentIdFromName(String nombre, String apellido,
+      String direccion, String telefono, String correo, String imagen) async {
     try {
       // Realizar una consulta para buscar documentos que coincidan con el nombre
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('clientes')
           .where('nombre', isEqualTo: nombre)
-          .where('apellido', isEqualTo: apellidos)
+          .where('apellido', isEqualTo: apellido)
+          .where('direccion', isEqualTo: direccion)
+          .where('telefono', isEqualTo: telefono)
+          .where('correo', isEqualTo: correo)
+          .where('imagen', isEqualTo: imagen)
           .where(FieldPath.documentId)
           .limit(1) // Limitar la consulta a un solo resultado
           .get();

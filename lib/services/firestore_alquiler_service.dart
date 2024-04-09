@@ -67,8 +67,8 @@ class FirestoreAlquilerService {
     try {
       // Realizar una consulta para buscar documentos que coincidan con el nombre
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('clientes')
-          .where('nombre', isEqualTo: IdCliente)
+          .collection('alquiler')
+          .where('idCliente', isEqualTo: IdCliente)
           .where(FieldPath.documentId)
           .limit(1) // Limitar la consulta a un solo resultado
           .get();

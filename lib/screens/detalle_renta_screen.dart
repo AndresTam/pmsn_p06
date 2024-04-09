@@ -1,5 +1,12 @@
+import 'package:art_sweetalert/art_sweetalert.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pmsn_06/screens/Registro_datos.dart';
+import 'package:pmsn_06/screens/carrito_rentas_screen.dart';
+import 'package:pmsn_06/services/firestore_alquiler_detail_service.dart';
+import 'package:pmsn_06/services/firestore_alquiler_service.dart';
+import 'package:pmsn_06/services/firestore_carrito_service.dart';
+import 'package:pmsn_06/services/firestore_client_service.dart';
 import 'package:pmsn_06/services/firestore_products_service.dart';
 
 class DetalleRentaScreen extends StatefulWidget {
@@ -14,6 +21,14 @@ class DetalleRentaScreen extends StatefulWidget {
 class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
   final FirestoreProductService _firestoreProductsService =
       FirestoreProductService();
+  final FirestoreClientService _firestoreService = FirestoreClientService();
+  final FirestoreAlquilerService _firestoreAlquilerService =
+      FirestoreAlquilerService();
+  final FirestoreAlquilerDetailService _firestoreAlquilerDetailService =
+      FirestoreAlquilerDetailService();
+  final FirestoreCarritoService _firestoreCarritoService =
+      FirestoreCarritoService();
+
   late Map<String, dynamic>
       product; // Cambié la inicialización para hacerla tardía (late)
 
@@ -29,6 +44,11 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
 
   double? _precio;
   double? _total; // Agrega una variable para almacenar el total
+  String? IDCliente;
+  String? IDProducto;
+  String? NombreProdcuto;
+  String? IDAlquiler;
+  double? cantidad;
 
   @override
   void initState() {
@@ -75,6 +95,33 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
       appBar: AppBar(
         title: const Text("Detalla Producto"),
         backgroundColor: Colors.blue,
+        leading: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _firestoreCarritoService.getcarrito(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container();
+            } else if (snapshot.hasError) {
+              return Container();
+            } else {
+              int carritoLength = snapshot.data!.length;
+              return badges.Badge(
+                badgeContent: Text('$carritoLength'),
+                position: badges.BadgePosition.topEnd(top: 10, end: 10),
+                child: IconButton(
+                  icon: Icon(Icons.shop),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CarritoScreen(),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: FutureBuilder(
@@ -165,8 +212,7 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
                                   border: UnderlineInputBorder(),
                                   filled: true,
                                   icon: Icon(Icons.attach_money),
-                                  labelText:
-                                      'Total de renta (multiplicado por 3)',
+                                  labelText: 'Total de renta',
                                 ),
                               ),
                             ),
@@ -196,6 +242,7 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
                                   builder: (context) => RegistroDatosScreen(
                                     product: productData,
                                     total: _total,
+                                    longitud: 0,
                                   ),
                                 ),
                               );
@@ -203,8 +250,48 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
                             child: const Text('Rentar ahora'),
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                              // Agregar lógica para agregar a carrito aquí
+                            onPressed: () async {
+                              // Obtener la cantidad del producto del controlador
+                              final String quantityText =
+                                  _quantityController.text.trim();
+                              cantidad = double.tryParse(quantityText) ?? 0.0;
+
+                              if (cantidad! <= 0) {
+                                // Validar que la cantidad sea mayor que cero
+                                ArtSweetAlert.show(
+                                  context: context,
+                                  artDialogArgs: ArtDialogArgs(
+                                    type: ArtSweetAlertType.warning,
+                                    title: "Error",
+                                    text: "Ingrese una cantidad válida.",
+                                  ),
+                                );
+                                return;
+                              }
+
+                              IDProducto = await _firestoreProductsService
+                                  .getDocumentIdFromName(productData['nombre']);
+                              // Crear el registro en el carrito
+                              await _firestoreCarritoService.createCarrito(
+                                IDProducto!,
+                                productData['nombre'],
+                                cantidad!,
+                                _precio!,
+                                _total!,
+                              );
+
+                              // Actualizar el estado para reflejar el cambio en la UI
+                              setState(() {});
+
+                              // Mostrar la alerta de éxito
+                              ArtSweetAlert.show(
+                                context: context,
+                                artDialogArgs: ArtDialogArgs(
+                                  type: ArtSweetAlertType.success,
+                                  title: "Producto añadido a carrito",
+                                  text: "",
+                                ),
+                              );
                             },
                             child: const Text('Agregar a carrito'),
                           ),
