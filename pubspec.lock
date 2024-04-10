@@ -25,14 +25,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.5"
-  art_sweetalert:
-    dependency: "direct main"
-    description:
-      name: art_sweetalert
-      sha256: "64dd68fc8648197e2b8201b3d28e2e9ec41c0883a05e18be21386ec6435d2b54"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.5"
   async:
     dependency: transitive
     description:
@@ -41,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  badges:
+    dependency: "direct main"
+    description:
+      name: badges
+      sha256: a7b6bbd60dce418df0db3058b53f9d083c22cdb5132a052145dc267494df0b84
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -171,10 +171,8 @@ packages:
     description:
       name: flutter_lints
       sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
-      sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3"
     version: "2.0.3"
   flutter_test:
     dependency: "direct dev"
@@ -231,10 +229,8 @@ packages:
     description:
       name: lints
       sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
-      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
     version: "2.1.1"
   lottie:
     dependency: "direct main"
@@ -289,10 +285,17 @@ packages:
     description:
       name: pointycastle
       sha256: "70fe966348fe08c34bf929582f1d8247d9d9408130723206472b4687227e4333"
-      sha256: "70fe966348fe08c34bf929582f1d8247d9d9408130723206472b4687227e4333"
       url: "https://pub.dev"
     source: hosted
     version: "3.8.0"
+  simple_gesture_detector:
+    dependency: transitive
+    description:
+      name: simple_gesture_detector
+      sha256: ba2cd5af24ff20a0b8d609cec3f40e5b0744d2a71804a2616ae086b9c19d19a3
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -338,6 +341,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  table_calendar:
+    dependency: "direct main"
+    description:
+      name: table_calendar
+      sha256: b759eb6caa88dda8e51c70ee43c19d1682f8244458f84cced9138ee35b2ce416
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.1"
   term_glyph:
     dependency: transitive
     description:
@@ -379,5 +390,5 @@ packages:
     source: hosted
     version: "0.3.0"
 sdks:
-  dart: ">=3.2.6 <4.0.0"
+  dart: ">=3.2.0 <4.0.0"
   flutter: ">=3.16.0"

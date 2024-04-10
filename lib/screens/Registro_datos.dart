@@ -95,7 +95,8 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registro de Datos'),
+        title: const Text('Registro de Datos'),
+        backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
         child: Padding(

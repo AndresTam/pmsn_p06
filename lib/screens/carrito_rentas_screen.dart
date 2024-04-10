@@ -10,7 +10,8 @@ class CarritoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Carrito de Compras'),
+        title: const Text('Carrito de Compras'),
+        backgroundColor: Colors.blue,
       ),
       body: Container(
         child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -33,7 +34,7 @@ class CarritoScreen extends StatelessWidget {
             }
 
             return Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(30.0),
               child: Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,16 +45,35 @@ class CarritoScreen extends StatelessWidget {
                         scrollDirection: Axis.vertical,
                         itemBuilder: (context, index) {
                           var carritoo = carrito[index];
-                          return ListTile(
-                            title: Text(carritoo['nombreProducto'].toString()),
-                            subtitle: Text(
-                                "Cantidad: ${carritoo['cantidad'].toString()} \nTotal: ${carritoo['subtotal']}"),
-                            trailing: Text(
-                                "Precio por Unidad: ${carritoo['precioUnitario'].toString()}"),
+                          return Column(
+                            children: [
+                              ListTile(
+                                leading: const CircleAvatar(
+                                  backgroundColor: Color(0xff6ae792),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  side: const BorderSide(
+                                      width: 2,
+                                      color: Color.fromARGB(255, 0, 0, 0)),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                title: Text(
+                                  carritoo['nombreProducto'].toString(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Text(
+                                    "Cantidad: ${carritoo['cantidad'].toString()} \nTotal: ${carritoo['subtotal']}"),
+                                trailing: Text(
+                                    "Precio por Unidad: ${carritoo['precioUnitario'].toString()}"),
+                              ),
+                              const Divider(),
+                            ],
                           );
                         },
                       ),
                     ),
+                    const Divider(),
                     const SizedBox(height: 20),
                     Text(
                       'Total: \$${total.toStringAsFixed(2)}',

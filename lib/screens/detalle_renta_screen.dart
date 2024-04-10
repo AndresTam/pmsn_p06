@@ -1,8 +1,7 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
-import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
+import 'package:pmsn_06/funcion/carrito_badges.dart';
 import 'package:pmsn_06/screens/Registro_datos.dart';
-import 'package:pmsn_06/screens/carrito_rentas_screen.dart';
 import 'package:pmsn_06/services/firestore_alquiler_detail_service.dart';
 import 'package:pmsn_06/services/firestore_alquiler_service.dart';
 import 'package:pmsn_06/services/firestore_carrito_service.dart';
@@ -95,33 +94,9 @@ class _DetalleRentaScreenState extends State<DetalleRentaScreen> {
       appBar: AppBar(
         title: const Text("Detalla Producto"),
         backgroundColor: Colors.blue,
-        leading: FutureBuilder<List<Map<String, dynamic>>>(
-          future: _firestoreCarritoService.getcarrito(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Container();
-            } else if (snapshot.hasError) {
-              return Container();
-            } else {
-              int carritoLength = snapshot.data!.length;
-              return badges.Badge(
-                badgeContent: Text('$carritoLength'),
-                position: badges.BadgePosition.topEnd(top: 10, end: 10),
-                child: IconButton(
-                  icon: Icon(Icons.shop),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CarritoScreen(),
-                      ),
-                    );
-                  },
-                ),
-              );
-            }
-          },
-        ),
+        actions: [
+          buildCarritoIconButton(context),
+        ],
       ),
       body: SingleChildScrollView(
         child: FutureBuilder(

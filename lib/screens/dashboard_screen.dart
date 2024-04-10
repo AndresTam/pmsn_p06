@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pmsn_06/funcion/carrito_badges.dart';
 import 'package:pmsn_06/screens/alquiler_screen.dart';
 import 'package:pmsn_06/screens/detalle_renta_screen.dart';
 import 'package:pmsn_06/services/firestore_products_service.dart';
@@ -26,6 +27,10 @@ class DashboardScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
             fontSize: 35,
           ),
+        ),
+        leading: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: buildCarritoIconButton(context),
         ),
         actions: [
           IconButton(
