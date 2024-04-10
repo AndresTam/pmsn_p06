@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class FirestoreAlquilerService {
-  final CollectionReference _usersCollection =
-      FirebaseFirestore.instance.collection('alquiler');
-
+  final CollectionReference _usersCollection = FirebaseFirestore.instance.collection('alquiler');
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  
   //Funcion para insertar un alquiler
   Future<void> createAlquiler(String idCliente, String fechaAlquiler,
       String fechaDevolucion, double total) async {

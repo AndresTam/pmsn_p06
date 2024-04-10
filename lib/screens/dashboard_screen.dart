@@ -8,7 +8,7 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final FirestoreProductService _firestoreProductService =
+    final FirestoreProductService firestoreProductService =
         FirestoreProductService();
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +29,7 @@ class DashboardScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.calendar_today), // Icono de calendario
+            icon: const Icon(Icons.calendar_today), // Icono de calendario
             onPressed: () {
               Navigator.push(
                 context,
@@ -41,15 +41,15 @@ class DashboardScreen extends StatelessWidget {
       ),
       body: Container(
         child: FutureBuilder<List<Map<String, dynamic>>>(
-          future: _firestoreProductService.getProducts(),
+          future: firestoreProductService.getProducts(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
             if (snapshot.hasError) {
-              return Center(
+              return const Center(
                 child: Text('Error al cargar los productos'),
               );
             }
@@ -81,7 +81,7 @@ class DashboardScreen extends StatelessWidget {
 }
 
 Widget _buildSection(
-    String title, List<Map<String, dynamic>> products, BuildContext context) {
+  String title, List<Map<String, dynamic>> products, BuildContext context) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -143,7 +143,7 @@ Widget _productCard(String nombreProducto, String precio, String imagePath,
               height: 350,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(15.0),
                   topRight: Radius.circular(15.0),
                 ),
@@ -158,7 +158,7 @@ Widget _productCard(String nombreProducto, String precio, String imagePath,
                   Container(
                     height: 102,
                     width: 300,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Color.fromARGB(255, 241, 241, 241),
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(15.0),
@@ -171,7 +171,7 @@ Widget _productCard(String nombreProducto, String precio, String imagePath,
                           padding: const EdgeInsets.only(top: 15.0),
                           child: Text(
                             nombreProducto,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 25,
                             ),
@@ -181,7 +181,7 @@ Widget _productCard(String nombreProducto, String precio, String imagePath,
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
                             '\$$precio por unidad',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.w400,
                               fontSize: 20,
                             ),

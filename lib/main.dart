@@ -4,16 +4,18 @@ import 'package:pmsn_06/screens/Registro_datos.dart';
 import 'package:pmsn_06/screens/dashboard_screen.dart';
 import 'package:pmsn_06/screens/detalle_renta_screen.dart';
 import 'package:pmsn_06/screens/splash_screen.dart';
+import 'package:pmsn_06/services/notification_service.dart';
 import 'package:pmsn_06/settings/app_value_notifier.dart';
 import 'package:pmsn_06/settings/theme.dart';
-
 import 'firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await initNotifications();
+  await mostrarNotificacion();
   runApp(MyApp());
 }
 

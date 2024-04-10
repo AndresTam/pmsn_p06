@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pmsn_06/screens/alquiler_history_screen.dart';
 import 'package:pmsn_06/screens/calendar_screen.dart';
 import 'package:pmsn_06/services/firestore_alquiler_service.dart';
@@ -26,8 +27,12 @@ class AlquilerScreen extends StatelessWidget {
           }
           List<Map<String, dynamic>> rentasPendientes = snapshot.data!;
           List<Map<String, dynamic>> rentasFuturas = rentasPendientes.where((renta) {
-            DateTime fechaAlquiler = DateTime.parse(renta['fechaAlquiler']);
-            return !fechaAlquiler.isBefore(now); // Retorna true si la fecha de alquiler es hoy o en el futuro
+            String fechaAlquilerString = renta['fechaAlquiler'];
+            if (fechaAlquilerString.isNotEmpty) {
+              DateTime fechaAlquiler = DateFormat('yyyy-MM-dd').parse(fechaAlquilerString);
+              return !fechaAlquiler.isBefore(now); // Retorna true si la fecha de alquiler es hoy o en el futuro
+            }
+            return false;
           }).toList();
 
           return ListView.builder(
