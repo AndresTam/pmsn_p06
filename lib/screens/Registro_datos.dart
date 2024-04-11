@@ -260,53 +260,58 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
                 maxLength: 300, // Limitar a 300 caracteres
               ),
               SeparacionVertical,
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    // Crear cliente
-                    _firestoreService.createClient(
-                      nombreController.text,
-                      apellidosController.text,
-                      direccionController.text,
-                      telefonoController.text,
-                      emailController.text,
-                      '',
-                    );
+              if (widget.longitud == 0)
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      print(
+                          "Crear usuario \n longitud: ${widget.longitud} \n nombre: ${widget.product['nombre']}");
+                      // Crear cliente,
+                      _firestoreService.createClient(
+                        nombreController.text,
+                        apellidosController.text,
+                        direccionController.text,
+                        telefonoController.text,
+                        emailController.text,
+                        '',
+                      );
 
-                    // Obtener ID del cliente
-                    IDCliente = await _firestoreService.getDocumentIdFromName(
-                      nombreController.text,
-                      apellidosController.text,
-                      direccionController.text,
-                      telefonoController.text,
-                      emailController.text,
-                      '',
-                    );
+                      // Obtener ID del cliente
+                      IDCliente = await _firestoreService.getDocumentIdFromName(
+                        nombreController.text,
+                        apellidosController.text,
+                        direccionController.text,
+                        telefonoController.text,
+                        emailController.text,
+                        '',
+                      );
 
-                    print(IDCliente);
+                      print("IDCliente ${IDCliente}");
 
-                    // Crear alquiler
-                    await _firestoreAlquilerService.createAlquiler(
-                      IDCliente!,
-                      conFechaAlquiler.text,
-                      conFechaDevolucion.text,
-                      widget.total,
-                    );
+                      // Crear alquiler
+                      await _firestoreAlquilerService.createAlquiler(
+                        IDCliente!,
+                        conFechaAlquiler.text,
+                        conFechaDevolucion.text,
+                        widget.total,
+                      );
 
-                    // Obtener ID del alquiler
-                    IDAlquiler = await _firestoreAlquilerService
-                        .getDocumentId(IDCliente!);
-                    print(IDAlquiler);
-                    cantidad = widget.product['precio'] / widget.total;
+                      // Obtener ID del alquiler
+                      IDAlquiler = await _firestoreAlquilerService
+                          .getDocumentId(IDCliente!);
+                      print("IDAlquiler ${IDAlquiler}");
+                      cantidad = widget.total / widget.product['precio'];
 
-                    // Crear detalle de alquiler
-                    if (widget.longitud == 0) {
+                      // Crear detalle de alquiler
                       // Obtener ID del producto
                       NombreProdcuto = widget.product['nombre'].toString();
                       print(NombreProdcuto);
                       IDProducto = await _firestoreProductService
                           .getDocumentIdFromName(NombreProdcuto!);
-                      print(IDProducto);
+                      print("IDProducto ${IDProducto}");
+
+                      print(
+                          "IDAlquiler ${IDAlquiler} \n IDProducto ${IDProducto} \n cantidad ${cantidad} \n precio ${widget.product['precio']} \n total ${widget.total} ");
                       _firestoreAlquilerDetailService.createAlquilerDetail(
                         IDAlquiler!,
                         IDProducto!,
@@ -314,34 +319,105 @@ class _RegistroDatosScreenState extends State<RegistroDatosScreen> {
                         widget.product['precio'], // Precio unitario
                         widget.total, // Subtotal
                       );
-                    } else {
-                      _firestoreCarritoService.copiarDatosSimilares(
-                        "carrito",
-                        "alquiler-detail",
-                        IDAlquiler!,
+
+                      ArtSweetAlert.show(
+                        context: context,
+                        artDialogArgs: ArtDialogArgs(
+                            type: ArtSweetAlertType.success,
+                            title: "Renta Creada",
+                            text: ""),
+                      );
+                    } catch (e) {
+                      print('no se pudo crear');
+                      ArtSweetAlert.show(
+                        context: context,
+                        artDialogArgs: ArtDialogArgs(
+                            type: ArtSweetAlertType.danger,
+                            title: "Renta No Creada",
+                            text: ""),
                       );
                     }
+                  },
+                  child: const Text('Rentar'),
+                )
+              else
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      // Tu lógica para el caso de longitud == 0
 
-                    ArtSweetAlert.show(
-                      context: context,
-                      artDialogArgs: ArtDialogArgs(
-                          type: ArtSweetAlertType.success,
-                          title: "Renta Creada",
-                          text: ""),
-                    );
-                  } catch (e) {
-                    print('no se pudo crear');
-                    ArtSweetAlert.show(
-                      context: context,
-                      artDialogArgs: ArtDialogArgs(
-                          type: ArtSweetAlertType.danger,
-                          title: "Renta No Creada",
-                          text: ""),
-                    );
-                  }
-                },
-                child: const Text('Rentar'),
-              ),
+                      print(
+                          "Crear usuario \n longitud: ${widget.longitud} \n nombre: ${widget.product['nombre']}");
+                      print(
+                          " precio ${widget.product['precio']} \n total ${widget.total} ");
+                      // Crear cliente,
+                      _firestoreService.createClient(
+                        nombreController.text,
+                        apellidosController.text,
+                        direccionController.text,
+                        telefonoController.text,
+                        emailController.text,
+                        '',
+                      );
+
+                      // Obtener ID del cliente
+                      IDCliente = await _firestoreService.getDocumentIdFromName(
+                        nombreController.text,
+                        apellidosController.text,
+                        direccionController.text,
+                        telefonoController.text,
+                        emailController.text,
+                        '',
+                      );
+
+                      print("IDCliente ${IDCliente}");
+
+                      // Crear alquiler
+                      await _firestoreAlquilerService.createAlquiler(
+                        IDCliente!,
+                        conFechaAlquiler.text,
+                        conFechaDevolucion.text,
+                        widget.total,
+                      );
+
+                      // Obtener ID del alquiler
+                      IDAlquiler = await _firestoreAlquilerService
+                          .getDocumentId(IDCliente!);
+                      print("IDAlquiler ${IDAlquiler}");
+
+                      cantidad = await _firestoreCarritoService
+                          .sumarCantidadesCarrito();
+                      print(cantidad);
+
+                      _firestoreAlquilerDetailService.createAlquilerDetail(
+                        IDAlquiler!,
+                        "Carrito de compras",
+                        cantidad!, // Cantidad
+                        0, // Precio unitario
+                        widget.total, // Subtotal
+                      );
+
+                      _firestoreCarritoService.borrarTodoElCarrito();
+                      ArtSweetAlert.show(
+                        context: context,
+                        artDialogArgs: ArtDialogArgs(
+                            type: ArtSweetAlertType.success,
+                            title: "Renta del carrito Creada",
+                            text: ""),
+                      );
+                    } catch (e) {
+                      print('no se pudo crear');
+                      ArtSweetAlert.show(
+                        context: context,
+                        artDialogArgs: ArtDialogArgs(
+                            type: ArtSweetAlertType.danger,
+                            title: "Renta No Creada",
+                            text: ""),
+                      );
+                    }
+                  },
+                  child: const Text('Rentar carrito'),
+                ),
             ],
           ),
         ),

@@ -85,33 +85,55 @@ class FirestoreCarritoService {
     }
   }
 
-  Future<void> copiarDatosSimilares(
-      String origen, String destino, String idAlquiler) async {
-    // Referencia a la colección de origen (carrito)
-    CollectionReference<Map<String, dynamic>> origenRef =
-        FirebaseFirestore.instance.collection(origen);
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    // Referencia a la colección de destino (alquiler_detail)
-    CollectionReference<Map<String, dynamic>> destinoRef =
-        FirebaseFirestore.instance.collection(destino);
+  Future<void> copiarDatosSimilares(String sourceCollection,
+      String destinationCollection, String idAlquiler) async {
+    // Consulta los documentos en la colección de carrito
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _firestore.collection(sourceCollection).get();
 
-    // Obtiene los documentos de la colección de origen (carrito)
-    QuerySnapshot<Map<String, dynamic>> snapshot = await origenRef.get();
+    // Itera sobre los documentos y copia los datos similares a la colección de detalle de alquiler
+    querySnapshot.docs.forEach((doc) async {
+      // Obtén los datos del documento
+      Map<String, dynamic> data = doc.data();
 
-    // Itera sobre cada documento
-    snapshot.docs.forEach((doc) async {
-      // Obtén los datos específicos del documento que deseas copiar
-      Map<String, dynamic> data = {
-        'idAlquiler': idAlquiler, // Campo común entre ambas colecciones
-        'idProducto': doc['idProducto'],
-        'cantidad': doc['cantidad'],
-        'precioUnitario': doc['precioUnitario'],
-        'subtotal': doc['subtotal'],
-        // Agrega más campos según sea necesario
-      };
-
-      // Inserta los datos en la colección de destino (alquiler_detail)
-      await destinoRef.add(data);
+      // Crea un nuevo documento en la colección de detalle de alquiler
+      await _firestore.collection(destinationCollection).add({
+        'idAlquiler': idAlquiler,
+        'idProducto': data['idProducto'].toString(),
+        'cantidad': int.parse(data['cantidad']),
+        'precioUnitario': double.parse(data['precioUnitario']),
+        'subtotal': double.parse(data['subtotal']),
+      });
     });
+  }
+
+  Future<double> sumarCantidadesCarrito() async {
+    try {
+      QuerySnapshot querySnapshot = await _usersCollection.get();
+      double totalCantidades = 0;
+      querySnapshot.docs.forEach((doc) {
+        Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
+        final cantidad = userData['cantidad'] as double;
+        totalCantidades += cantidad;
+      });
+      return totalCantidades;
+    } catch (e) {
+      print('Error sumando las cantidades del carrito: $e');
+      return 0;
+    }
+  }
+
+  Future<void> borrarTodoElCarrito() async {
+    try {
+      QuerySnapshot querySnapshot = await _usersCollection.get();
+      querySnapshot.docs.forEach((doc) async {
+        await doc.reference.delete();
+      });
+      print('Todos los datos del carrito han sido borrados exitosamente');
+    } catch (e) {
+      print('Error borrando todos los datos del carrito: $e');
+    }
   }
 }

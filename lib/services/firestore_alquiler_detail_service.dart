@@ -6,7 +6,7 @@ class FirestoreAlquilerDetailService {
 
   //Funcion para insertar un alquiler
   Future<void> createAlquilerDetail(String idAlquiler, String idProducto,
-      double cantidad, double precioUnitario, double subtotal) async {
+      double cantidad, int precioUnitario, double subtotal) async {
     try {
       await _usersCollection.add({
         'idAlquiler': idAlquiler,
